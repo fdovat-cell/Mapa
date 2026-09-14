@@ -338,6 +338,43 @@ body{
 }
 .send-btn:active{opacity:.85;}
 
+.confirm-sent{
+  display:none;
+  flex-direction:column;
+  gap:10px;
+  text-align:center;
+}
+.confirm-sent.show{display:flex;}
+.confirm-sent p{
+  margin:0;
+  font-size:14px;
+  color:var(--ink);
+}
+.confirm-sent-actions{
+  display:flex;gap:8px;
+}
+.confirm-yes{
+  flex:1;
+  background:var(--teal);
+  color:#fff;
+  border:none;
+  border-radius:var(--radius);
+  padding:12px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+}
+.confirm-no{
+  flex:1;
+  background:var(--paper-dim);
+  color:var(--ink-soft);
+  border:none;
+  border-radius:var(--radius);
+  padding:12px;
+  font-size:14px;
+  cursor:pointer;
+}
+
 @media (min-width:640px){
   .results{
     display:grid;

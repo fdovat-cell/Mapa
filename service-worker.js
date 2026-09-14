@@ -1,9 +1,9 @@
-const CACHE_NAME = 'pedido-papeleria-v1';
+const CACHE_NAME = 'pedido-papeleria-v3';
 const ASSETS = [
   './',
   './index.html',
-  './style.css?v=1',
-  './app.js?v=1',
+  './style.css?v=3',
+  './app.js?v=3',
   './productos.json',
   './manifest.json',
   './icon-192.png',

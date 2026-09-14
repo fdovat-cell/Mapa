@@ -20,6 +20,9 @@ const els = {
   drawerEmpty: document.getElementById('drawerEmpty'),
   totalAmount: document.getElementById('totalAmount'),
   sendBtn: document.getElementById('sendBtn'),
+  confirmSent: document.getElementById('confirmSent'),
+  confirmYes: document.getElementById('confirmYes'),
+  confirmNo: document.getElementById('confirmNo'),
 };
 
 function normalize(str) {
@@ -220,6 +223,7 @@ function renderDrawer() {
   els.drawerItems.innerHTML = '';
   els.drawerEmpty.style.display = items.length ? 'none' : 'block';
   els.sendBtn.style.display = items.length ? 'flex' : 'none';
+  els.confirmSent.classList.remove('show');
 
   items.forEach(item => {
     const line = document.createElement('div');
@@ -292,6 +296,21 @@ els.sendBtn.onclick = () => {
   msg += `\nTotal: ${money(cartTotal())}`;
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
+  els.sendBtn.style.display = 'none';
+  els.confirmSent.classList.add('show');
+};
+
+els.confirmYes.onclick = () => {
+  state.cart = {};
+  saveCart();
+  renderCartBadge();
+  renderDrawer();
+  renderResults();
+};
+
+els.confirmNo.onclick = () => {
+  els.confirmSent.classList.remove('show');
+  els.sendBtn.style.display = 'flex';
 };
 
 if ('serviceWorker' in navigator) {
