@@ -1,0 +1,15 @@
+{
+  "name": "Pedido Papelería",
+  "short_name": "Pedido Pap.",
+  "description": "Buscador y armador de pedidos de la lista de papelería",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F6F3EC",
+  "theme_color": "#2F5D62",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
