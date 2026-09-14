@@ -57,12 +57,13 @@ function buildCategoryIndex() {
   state.productos.forEach(p => {
     (byCat[p.cat] = byCat[p.cat] || []).push(p);
   });
-  categoryIndex = Object.keys(byCat)
-    .sort((a, b) => a.localeCompare(b, 'es'))
-    .map(cat => ({
-      cat,
-      items: byCat[cat].sort((a, b) => a.d.localeCompare(b.d, 'es')),
-    }));
+  const OTROS = 'OTROS (sin categorizar)';
+  const names = Object.keys(byCat).filter(c => c !== OTROS).sort((a, b) => a.localeCompare(b, 'es'));
+  if (byCat[OTROS]) names.push(OTROS);
+  categoryIndex = names.map(cat => ({
+    cat,
+    items: byCat[cat].sort((a, b) => a.d.localeCompare(b.d, 'es')),
+  }));
 }
 
 function saveCart() {
