@@ -34,16 +34,33 @@ function money(n) {
   return '$' + Math.round(n).toLocaleString('es-UY');
 }
 
+let categoryIndex = []; // [{cat, items:[...]}] sorted alphabetically
+
 fetch('productos.json')
   .then(r => r.json())
   .then(data => {
     state.productos = data;
     saveCartCleanup();
     renderCartBadge();
+    buildCategoryIndex();
+    renderResults();
   })
   .catch(() => {
     els.emptyState.textContent = 'No se pudo cargar la lista de productos.';
   });
+
+function buildCategoryIndex() {
+  const byCat = {};
+  state.productos.forEach(p => {
+    (byCat[p.cat] = byCat[p.cat] || []).push(p);
+  });
+  categoryIndex = Object.keys(byCat)
+    .sort((a, b) => a.localeCompare(b, 'es'))
+    .map(cat => ({
+      cat,
+      items: byCat[cat].sort((a, b) => a.d.localeCompare(b.d, 'es')),
+    }));
+}
 
 function saveCart() {
   localStorage.setItem('pedido_cart', JSON.stringify(state.cart));
@@ -104,8 +121,7 @@ function renderResults() {
   els.results.innerHTML = '';
 
   if (!els.search.value.trim()) {
-    els.emptyState.style.display = 'block';
-    els.emptyState.textContent = 'Escribí un código o una palabra para empezar a buscar.';
+    renderCategoryBrowse();
     return;
   }
   if (!matches.length) {
@@ -116,24 +132,54 @@ function renderResults() {
   els.emptyState.style.display = 'none';
 
   const frag = document.createDocumentFragment();
-  matches.forEach(p => {
-    const inCart = !!state.cart[p.c];
-    const row = document.createElement('div');
-    row.className = 'item';
-    row.innerHTML = `
-      <div class="item-main">
-        <div class="item-code">${p.c}</div>
-        <div class="item-desc">${p.d}</div>
-        <div class="item-price">${money(p.p)}</div>
-      </div>
-      <button class="add-btn ${inCart ? 'in-cart' : ''}" aria-label="Agregar">${inCart ? '✓' : '+'}</button>
-    `;
-    row.querySelector('.add-btn').onclick = (e) => {
-      addToCart(p);
-      e.currentTarget.classList.add('in-cart');
-      e.currentTarget.textContent = '✓';
-    };
-    frag.appendChild(row);
+  matches.forEach(p => frag.appendChild(buildItemRow(p)));
+  els.results.appendChild(frag);
+}
+
+function buildItemRow(p) {
+  const inCart = !!state.cart[p.c];
+  const row = document.createElement('div');
+  row.className = 'item';
+  row.innerHTML = `
+    <div class="item-main">
+      <div class="item-code">${p.c}</div>
+      <div class="item-desc">${p.d}</div>
+      <div class="item-price">${money(p.p)}</div>
+    </div>
+    <button class="add-btn ${inCart ? 'in-cart' : ''}" aria-label="Agregar">${inCart ? '✓' : '+'}</button>
+  `;
+  row.querySelector('.add-btn').onclick = (e) => {
+    addToCart(p);
+    e.currentTarget.classList.add('in-cart');
+    e.currentTarget.textContent = '✓';
+  };
+  return row;
+}
+
+function renderCategoryBrowse() {
+  els.catBar.innerHTML = '';
+  els.emptyState.style.display = 'none';
+  els.results.innerHTML = '';
+
+  const frag = document.createDocumentFragment();
+  categoryIndex.forEach(({ cat, items }) => {
+    const details = document.createElement('details');
+    details.className = 'cat-group';
+    const summary = document.createElement('summary');
+    summary.innerHTML = `<span>${cat}</span><span class="cat-count">${items.length}</span>`;
+    details.appendChild(summary);
+
+    const body = document.createElement('div');
+    body.className = 'cat-group-body';
+    let rendered = false;
+    details.addEventListener('toggle', () => {
+      if (details.open && !rendered) {
+        items.forEach(p => body.appendChild(buildItemRow(p)));
+        rendered = true;
+      }
+    });
+    details.appendChild(body);
+    frag.appendChild(details);
   });
   els.results.appendChild(frag);
 }
@@ -247,8 +293,6 @@ els.sendBtn.onclick = () => {
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 };
-
-renderResults();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
